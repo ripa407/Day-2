@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <h1>Maintenace Sevice</h1>
+        <p>You must purchese a licence first from our website to buy our maintenance services.</p>
+        <div>
+            <button> Go backword</button>
+            <div>
+            <img src="images.jpg" alt="Maintenance service image" width="300">
+            <p>Petstick</p>
+            </div>
+
+            <div>
+            <img src="images.jpg" alt="Maintenance service image" width="300">
+            <p>Taxstick</p>
+            </div>
+
+            <div>
+            <img src="images.jpg" alt="Maintenance service image" width="300">
+            <p>Ecostick</p>
+            </div>
+
+             <div>
+            <img src="images.jpg" alt="Maintenance service image" width="300">
+            <p>Travelstick</p>
+            </div>
+
+             <div>
+            <img src="images.jpg" alt="Maintenance service image" width="300">
+            <p>Gostick</p>
+            </div>
+
+            <button> Go forward</button>
+            
+        </div>
+    </div>
+</body>
+</html>
