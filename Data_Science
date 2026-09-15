@@ -1,0 +1,236 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMC/zThMDZ8aD+3W7yTv5fi",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/ripa407/Day-2/blob/main/Data_Science\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 3,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "yj3A3wffQbHJ",
+        "outputId": "2f3f61a1-a077-4bb1-9259-f7f6d613f2c8"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Before Cleaning: (4803, 3)\n",
+            "After Cleaning: (4803, 3)\n",
+            "Cleaned dataset created successfully!\n",
+            "\n",
+            "First 5 rows:\n",
+            "  Codepoint Character                                Name\n",
+            "0   U+ 088F         ࢏  ARABIC LETTER NOON WITH RING ABOVE\n",
+            "1   U+ 0C5C         ౜                TELUGU ARCHAIC SHRII\n",
+            "2   U+ 0CDC         ೜               KANNADA ARCHAIC SHRII\n",
+            "3   U+ 1ACF         ᫏              COMBINING DOUBLE CARON\n",
+            "4   U+ 1AD0         ᫐       COMBINING VERTICAL-LINE-ACUTE\n"
+          ]
+        }
+      ],
+      "source": [
+        "import requests\n",
+        "from bs4 import BeautifulSoup\n",
+        "import pandas as pd\n",
+        "import time\n",
+        "\n",
+        "headers = {\n",
+        "    \"User-Agent\": \"Mozilla/5.0\"\n",
+        "}\n",
+        "\n",
+        "base_url = \"https://unicodeplus.com\"\n",
+        "\n",
+        "all_data = []\n",
+        "\n",
+        "for page in range(1, 52):\n",
+        "    url = f\"{base_url}/version/17/{page}\"\n",
+        "\n",
+        "    response = requests.get(url, headers=headers)\n",
+        "\n",
+        "    if response.status_code != 200:\n",
+        "        continue\n",
+        "\n",
+        "    soup = BeautifulSoup(response.text, \"html.parser\")\n",
+        "\n",
+        "    table = soup.find(\"table\")\n",
+        "\n",
+        "    if table is None:\n",
+        "        continue\n",
+        "\n",
+        "    rows = table.find_all(\"tr\")\n",
+        "\n",
+        "    for row in rows:\n",
+        "        cells = row.find_all([\"th\", \"td\"])\n",
+        "\n",
+        "        values = [cell.get_text(\" \", strip=True) for cell in cells]\n",
+        "\n",
+        "        if len(values) >= 3:\n",
+        "\n",
+        "            if values[0].lower() == \"codepoint\":\n",
+        "                continue\n",
+        "\n",
+        "            all_data.append({\n",
+        "                \"Codepoint\": values[0],\n",
+        "                \"Character\": values[1],\n",
+        "                \"Name\": values[2]\n",
+        "            })\n",
+        "\n",
+        "    time.sleep(0.5)\n",
+        "\n",
+        "df = pd.DataFrame(all_data)\n",
+        "\n",
+        "print(\"Before Cleaning:\", df.shape)\n",
+        "\n",
+        "df[\"Codepoint\"] = df[\"Codepoint\"].str.strip()\n",
+        "df[\"Character\"] = df[\"Character\"].str.strip()\n",
+        "df[\"Name\"] = df[\"Name\"].str.strip()\n",
+        "df = df.dropna(\n",
+        "    subset=[\"Codepoint\", \"Character\", \"Name\"]\n",
+        ")\n",
+        "\n",
+        "df = df.drop_duplicates()\n",
+        "\n",
+        "\n",
+        "df = df.drop_duplicates(\n",
+        "    subset=[\"Codepoint\"]\n",
+        ")\n",
+        "\n",
+        "df = df.reset_index(drop=True)\n",
+        "\n",
+        "df.to_csv(\n",
+        "    \"unicode_character_dataset_cleaned.csv\",\n",
+        "    index=False,\n",
+        "    encoding=\"utf-8-sig\"\n",
+        ")\n",
+        "\n",
+        "print(\"After Cleaning:\", df.shape)\n",
+        "print(\"Cleaned dataset created successfully!\")\n",
+        "\n",
+        "print(\"\\nFirst 5 rows:\")\n",
+        "print(df.head())"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import drive\n",
+        "drive.mount('/content/drive')"
+      ],
+      "metadata": {
+        "id": "wqdkQciDbfNY"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import files\n",
+        "\n",
+        "files.download(\"unicode_character_dataset_cleaned.csv\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 17
+        },
+        "id": "w6z1Iz-4RHZX",
+        "outputId": "f484e3b5-1e61-45fb-8b30-c0125add8601"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.Javascript object>"
+            ],
+            "application/javascript": [
+              "\n",
+              "    async function download(id, filename, size) {\n",
+              "      if (!google.colab.kernel.accessAllowed) {\n",
+              "        return;\n",
+              "      }\n",
+              "      const div = document.createElement('div');\n",
+              "      const label = document.createElement('label');\n",
+              "      label.textContent = `Downloading \"${filename}\": `;\n",
+              "      div.appendChild(label);\n",
+              "      const progress = document.createElement('progress');\n",
+              "      progress.max = size;\n",
+              "      div.appendChild(progress);\n",
+              "      document.body.appendChild(div);\n",
+              "\n",
+              "      const buffers = [];\n",
+              "      let downloaded = 0;\n",
+              "\n",
+              "      const channel = await google.colab.kernel.comms.open(id);\n",
+              "      // Send a message to notify the kernel that we're ready.\n",
+              "      channel.send({})\n",
+              "\n",
+              "      for await (const message of channel.messages) {\n",
+              "        // Send a message to notify the kernel that we're ready.\n",
+              "        channel.send({})\n",
+              "        if (message.buffers) {\n",
+              "          for (const buffer of message.buffers) {\n",
+              "            buffers.push(buffer);\n",
+              "            downloaded += buffer.byteLength;\n",
+              "            progress.value = downloaded;\n",
+              "          }\n",
+              "        }\n",
+              "      }\n",
+              "      const blob = new Blob(buffers, {type: 'application/binary'});\n",
+              "      const a = document.createElement('a');\n",
+              "      a.href = window.URL.createObjectURL(blob);\n",
+              "      a.download = filename;\n",
+              "      div.appendChild(a);\n",
+              "      a.click();\n",
+              "      div.remove();\n",
+              "    }\n",
+              "  "
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.Javascript object>"
+            ],
+            "application/javascript": [
+              "download(\"download_9797394c-7067-494f-bcdd-20a115d32cd5\", \"unicode_character_dataset_cleaned.csv\", 199786)"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    }
+  ]
+}
